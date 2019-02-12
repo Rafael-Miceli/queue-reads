@@ -13,14 +13,11 @@ namespace producer1
 
             var bus = RabbitHutch.CreateBus("host=localhost");
 
-            var message = new MessageSample
-            {
-                Id = 1,
-                Category = "Producer1",
-                Content = "Conteudo 1"
-            };
-
-            bus.Publish(message, message.Category);
+            bus.Subscribe<MessageSample>(
+                "Client1", 
+                msg => Console.WriteLine(msg.Content), 
+                x => x.WithTopic("Producer1")
+            );
         }
     }
 }
