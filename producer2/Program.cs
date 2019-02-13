@@ -12,16 +12,18 @@ namespace producer2
 
             var bus = RabbitHutch.CreateBus("host=localhost");
 
+            var random = new Random();
+
             for (int i = 0; i < 100; i++)
             {
                 var message = new MessageSample
                 {
                     Id = i+1,
-                    Category = "Producer2",
+                    ClientName = $"Fulano-{random.Next(100)}",
                     Content = $"Conteudo 2{i}"
                 };
 
-                bus.Publish(message, message.Category);
+                bus.Publish(message, message.ClientName);
             }
         }
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using domain;
 using EasyNetQ;
 
@@ -6,32 +8,32 @@ namespace consumer1
 {
     class Program
     {
+
+        private static IBus _bus;
         
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Preparing to read queue Consumer 1!");
 
-            var bus = RabbitHutch.CreateBus("host=localhost");
+            _bus = RabbitHutch.CreateBus("host=localhost");
 
-            bus.Subscribe<MessageSample>(
-                "Client1.1", 
-                msg => Console.WriteLine("Producer 1 - " + msg.Content), 
-                x => x.WithTopic("Producer1")
-            );
+            var tasks = new List<Task>();
 
-            bus.Subscribe<MessageSample>(
-                "Client1.2", 
-                msg => Console.WriteLine("Producer 2 - " + msg.Content), 
-                x => x.WithTopic("Producer2")
-            );
+            for (int i = 0; i < 1000000; i++)
+                tasks.Add(ConsumeClients(i));
 
-            bus.Subscribe<MessageSample>(
-                "Client1.3", 
-                msg => Console.WriteLine("Producer 3 - " + msg.Content), 
-                x => x.WithTopic("Producer3")
-            );
+            await Task.WhenAll(tasks);
 
             Console.ReadKey();
+        }
+
+        static async Task ConsumeClients(int topicIndex)
+        {
+            _bus.Subscribe<MessageSample>(
+                    $"Client1.{topicIndex}", 
+                    msg => Console.WriteLine("Producer 1 - " + msg.Content),
+                    x => x.WithTopic($"Fulano-{topicIndex}")
+                );
         }
     }
 }
