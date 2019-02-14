@@ -19,15 +19,11 @@ namespace consumer1
                 x => x.WithTopic("Producer1")
             );
 
-            con1.Dispose();
-
             var con2 = bus.Subscribe<MessageSample>(
                 "Client1.2", 
                 msg => Console.WriteLine("Producer 2 - " + msg.Content), 
                 x => x.WithTopic("Producer2")
             );
-
-            con1.Dispose();
 
             var con3 = bus.Subscribe<MessageSample>(
                 "Client1.3", 
@@ -35,9 +31,11 @@ namespace consumer1
                 x => x.WithTopic("Producer3")
             );
 
-            con1.Dispose();
+            Console.Read();
 
-            Console.ReadKey();
+            bus.Advanced.QueueDelete(con1.Queue);
+            bus.Advanced.QueueDelete(con2.Queue);
+            bus.Advanced.QueueDelete(con3.Queue);
         }
     }
 }
